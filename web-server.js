@@ -23,6 +23,9 @@ app.get("/data/*", function(req, res) {
 
   var path = url.parse(req.url).pathname;
   var dataUrl = "http://low-carbon-councils.herokuapp.com" + path;
+  if ((path.indexOf("data/uk") > 0))  {
+      dataUrl = "http://low-carbon-councils.local:81" + '/uk-energy-database/uk';
+  }
   console.log("Requesting ", dataUrl);
   http.request(dataUrl).on('response', function(response) {
     var data = '';
