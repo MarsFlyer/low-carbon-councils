@@ -25,9 +25,79 @@ angular.module('myApp', [
   'ordinal'
 ]).
 config(['$routeProvider', function($routeProvider) {
-  $routeProvider.otherwise({redirectTo: '/uk'});
+  $routeProvider.otherwise({redirectTo: '/uk/'});
+  //console.log("Hash",window.location.hash);
 
   var map = L.map('map').setView([54.9, -1.5], 6);
+
+  // Settings - to be put into parameter
+  var plot_title;
+  var plot_name;
+  var plot_calc;
+  var range;
+  var grades;
+  var params = window.location.hash.split('/');
+  //console.log("Params length",params.length);
+  var plot_option = params[params.length-1];
+  console.log("Plot option",plot_option);
+  //var plot_option = 'gas_person';
+  switch(plot_option) {
+    case 'elec_house':
+        plot_title = 'Electricity use';
+        plot_name = 'kWh per meter per day';
+        plot_calc = '(f.elec_total / f.elec_meters / 365).toFixed(2)';
+        range = 20;
+        grades = [0, 40, 50, 60, 70, 80, 90, 100];
+        break;
+    case 'elec_person':
+        plot_title = 'Electricity use';
+        plot_name = 'kWh per person per day';
+        plot_calc = '(f.elec_total / f.population / 365).toFixed(2)';
+        range = 10;
+        grades = [0, 40, 50, 60, 70, 80, 90, 100];
+        break;
+    case 'elec_total':
+        plot_title = 'Electricity use';
+        plot_name = 'GWh annually';
+        plot_calc = '(f.elec_total/1000/1000).toFixed(0)';
+        range = 600;
+        grades = [0, 40, 50, 60, 70, 80, 90, 100];
+        break;
+    case 'gas_house':
+        plot_title = 'Gas use';
+        plot_name = 'kWh per meter per day';
+        plot_calc = '(f.gas_total / f.gas_meters / 365).toFixed(2)';
+        range = 50;
+        grades = [0, 40, 50, 60, 70, 80, 90, 100];
+        break;
+    case 'gas_person':
+        plot_title = 'Gas use';
+        plot_name = 'kWh per person per day';
+        plot_calc = '(f.gas_total / f.population / 365).toFixed(2)';
+        range = 20;
+        grades = [0, 40, 50, 60, 70, 80, 90, 100];
+        break;
+    case 'gas_total':
+        plot_title = 'Gas use';
+        plot_name = 'GWh annually';
+        plot_calc = '(f.gas_total/1000/1000).toFixed(0)';
+        range = 1000;
+        grades = [0, 40, 50, 60, 70, 80, 90, 100];
+        break;
+    case 'fuel_poor':
+        plot_title = 'Socio-Economic';
+        plot_name = '% Fuel Poor';
+        plot_calc = '(f.percent_fuel_poor)'; //(f.percent_fuel_poor))';
+        range = 10;
+        grades = [0, 40, 50, 60, 70, 80, 90, 100];
+        break;
+    default:  // 'kw_household'
+        plot_title = 'Renewables Data';
+        plot_name = 'kW per household';
+        plot_calc = '(f.kw_per_household).toFixed(2)';
+        range = 1;
+        grades = [0, 1, 2, 5, 10, 20, 50, 100];
+  }
 
   L.tileLayer('https://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png', {
     maxZoom: 18,
@@ -65,8 +135,8 @@ config(['$routeProvider', function($routeProvider) {
       return;
     }
     var region = getRegionById(feature.id);
-    this._div.innerHTML = '<h4>Renewables Data</h4>' +  (feature ?
-      '<b>' + feature.properties.name + '</b><br />' + getValue(region) + ' kW per household</sup>'
+    this._div.innerHTML = '<h4>' + plot_title + '</h4>' +  (feature ?
+      '<b>' + feature.properties.name + '</b><br />' + getValue(region) + ' ' + plot_name + '</sup>'
       : 'Hover over a county');
   };
 
@@ -81,11 +151,8 @@ config(['$routeProvider', function($routeProvider) {
     }
     //var calc = (f.pv.total+f.wind.total+f.chp.total)/f.households*10000;
     var calc = (f.kw_per_household).toFixed(2);
-    return eval(calc);
+    return eval(plot_calc);
   }
-
-  var range = 1;
-  var grades = [0, 1, 2, 5, 10, 20, 50, 100];
 
   // get color depending on population density value
   function getColor(v) {

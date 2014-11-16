@@ -3,7 +3,7 @@
 angular.module('myApp.uk', ['ngRoute'])
 
 .config(['$routeProvider', function($routeProvider) {
-  $routeProvider.when('/uk', {
+  $routeProvider.when('/uk/:plot?', {
     templateUrl: 'uk/uk.html',
     controller: 'UkCtrl'
   });
@@ -11,7 +11,6 @@ angular.module('myApp.uk', ['ngRoute'])
 
 .controller('UkCtrl', ['$scope', '$routeParams', '$http', '$location', 'Country',
   function($scope, $routeParams, $http, $location, Country) {
-
     function renderChart(divName, data, maxValue) {
       //var data = RegionData;
       //var data = d3.csv.parse(d3.select('#csv').text());
